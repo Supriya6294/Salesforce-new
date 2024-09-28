@@ -1,0 +1,20 @@
+<template>
+    <lightning-card  variant="Narrow"  title="Creating Appointment Details" icon-name="standard:account">
+        <lightning-record-edit-form id="recordViewForm"
+                    object-api-name="Appointment_Details__c"
+                    onsubmit={handleSubmit}
+                    onerror={handleError}
+                    onsuccess={handleSuccess}>
+                    
+            <lightning-messages></lightning-messages>
+            <lightning-input-field name=contact field-name={contact} onchange={handleChange} required></lightning-input-field>
+            <lightning-input-field name=subject field-name={subject} type='text' onchange={handleChange} required></lightning-input-field>
+            <lightning-input-field name=appointmentDate field-name={appointmentDate} type='Date' onchange={handleChange} required></lightning-input-field>
+            <lightning-input-field name=appointmentTime field-name={appointmentTime} type='Time' onchange={handleChange} required></lightning-input-field>
+            <lightning-input-field name=description field-name={description} type='textarea' onchange={handleChange} required></lightning-input-field>
+            <!-- submit -->
+            <lightning-button type="submit" label="Create record" onclick={handleSubmit}></lightning-button>
+        </lightning-record-edit-form>
+        
+    </lightning-card>
+    </template>

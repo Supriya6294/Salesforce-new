@@ -1,0 +1,25 @@
+public class AppointmentController {
+   public class MyException extends Exception {
+        
+    }
+    @auraEnabled
+    public static boolean appointmentMethod(Date inputDate, string inputStrTime){
+        boolean flag=true;
+        String[] strTimeSplit = inputStrTime.split(':');
+        string hour=strTimeSplit[0];
+        string minute=strTimeSplit[1];
+        time inputTime=time.newInstance(Integer.valueOf(hour),Integer.valueOf(minute),0,0);
+        list<Appointment_Details__c> appointmentList=[SELECT Id, Appointment_Date__c, Appointment_Time__c FROM Appointment_Details__c where Appointment_Date__c=:inputDate and Appointment_Time__c=:inputTime];
+        if(appointmentList.size()>0 ){
+            throw new MyException('Duplicate record is found.');
+        }
+        list<Appoinment__c>listslot=[SELECT Appoinment_Date__c,Start_Time__c ,End_Time__c FROM Appoinment__c
+                                           where isActive__c=true and Appoinment_Date__c=:inputDate and Start_Time__c<=:inputTime and End_Time__c>=:inputTime];
+        if(listslot.size()>0){
+            throw new MyException('slot is full');
+        }
+        return flag;
+    }
+
+    
+}

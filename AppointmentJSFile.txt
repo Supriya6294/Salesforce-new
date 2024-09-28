@@ -1,0 +1,98 @@
+import { LightningElement ,track} from 'lwc';
+import appointmentMethod from '@salesforce/apex/AppointmentController.appointmentMethod';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import SUBJECT from '@salesforce/schema/Appointment_Details__c.Name';
+import APPOINTMENTDATE from '@salesforce/schema/Appointment_Details__c.Appointment_Date__c';
+import APPOINTMENTTIME from '@salesforce/schema/Appointment_Details__c.Appointment_Time__c';
+import CONTACT from '@salesforce/schema/Appointment_Details__c.Contact__c';
+import DESCRIPTION from '@salesforce/schema/Appointment_Details__c.Description__c';
+export default class AppointmentComponent extends LightningElement {
+    subject = SUBJECT;
+    contact = CONTACT;
+    appointmentDate = APPOINTMENTDATE;
+    appointmentTime = APPOINTMENTTIME;
+    description = DESCRIPTION;
+    count=0;
+    inputDate;
+    inputTime;
+    isValidate=false;
+
+    handleChange(event) {
+        let name = event.target.name;
+        let value = event.target.value;
+        
+        if (name === 'appointmentDate') {
+            this.inputDate = value;
+            console.log(this.inputDate);
+            console.log('type of date ' + typeof (new Date(this.inputDate)));
+        }
+        if (name === 'appointmentTime') {
+            this.inputTime = value;
+            console.log(this.inputTime);
+            console.log('type of time ' + typeof (this.inputTime));
+        }
+
+    }
+
+        validate(event) {
+              appointmentMethod({ inputDate:new Date(this.inputDate), inputStrTime: this.inputTime })
+        .then(result => {
+            console.log('validation is true............' + result);
+            console.log('validation is true............' + typeof (result));
+            if (result===true) {
+                this.message('validation succecfully', 'this slot is available', 'success');
+                console.log('getting true... response....');
+                this.count+=1;
+                this.isValidate=true;
+                console.log('count is now...'+this.count);
+                if(this.count%2==0){
+                    this.isValidate=false;
+                    console.log('count is now inside in if is ...'+this.count);
+                }
+                console.log('is validate valuein .then is...'+this.isValidate);
+            }
+                console.log('Validation is resolve...');
+                if(this.isValidate===true){
+                    console.log('is validate value above this.template is...'+this.isValidate);
+                    this.template.querySelector('lightning-record-edit-form').submit(event.detail.fields);
+                    console.log('this.template queryselector executed....');
+                    console.log('is validate value below this.template is...'+this.isValidate);
+                    this.isValidate=false;
+                    console.log('is validate value below this.template is...'+this.isValidate);
+                }
+            
+        }).catch(error => {
+            console.error('validation occur................' + error + '-----' + error.message);
+            this.errorMessage+=1;
+            event.preventDefault();
+            this.message('validation occured', 'this slot is not available', 'warning');
+        })
+    
+    }
+
+    handleSubmit(event) {
+        console.log('enterting to submit button...');
+        event.preventDefault();
+        console.log('starting the validation...');
+        this.validate(event);
+        console.log('leaving the validation...');
+        console.log('leaving the submit button...');
+
+   }
+       
+    handleSuccess(){
+        this.message('Appointment is Scheduled', 'Suceessfully created the Appointment', 'Success');
+    }
+
+    handleError() {
+        this.message('Error', 'Error while Record is Creating', 'error');
+    }
+
+    message(text, message, variant) {
+        return dispatchEvent(new ShowToastEvent({
+            title: text,
+            message: message,
+            variant: variant
+        }))
+    }
+}
